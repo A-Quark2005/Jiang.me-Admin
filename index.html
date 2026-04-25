@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>讲了么管理后台</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">JiangLeMe Admin</p>
+          <h1>讲了么管理后台</h1>
+        </div>
+        <div class="topbar-actions">
+          <span class="badge" id="serverModeBadge">未连接</span>
+          <button class="ghost-button compact-button" id="logoutButton" type="button">退出登录</button>
+        </div>
+      </header>
+
+      <main class="layout">
+        <aside class="sidebar">
+          <section class="card">
+            <div class="section-head">
+              <h2>登录</h2>
+            </div>
+
+            <div class="stack-form">
+              <label class="field">
+                <span>后端地址</span>
+                <input id="apiBaseUrlInput" type="url" placeholder="https://api.whkerdb.top" />
+              </label>
+
+              <label class="field">
+                <span>管理员账号</span>
+                <select id="adminAccountSelect">
+                  <option value="">读取中</option>
+                </select>
+              </label>
+
+              <label class="field">
+                <span>userId</span>
+                <input id="adminUserIdInput" type="text" placeholder="user_internal_ops" />
+              </label>
+
+              <div class="action-row">
+                <button id="refreshAccountsButton" class="secondary-button" type="button">刷新账号</button>
+                <button id="loginButton" type="button">登录</button>
+              </div>
+            </div>
+
+            <div class="session-panel">
+              <div class="session-item">
+                <span class="label">当前管理员</span>
+                <strong id="sessionUserValue">未登录</strong>
+              </div>
+              <div class="session-item">
+                <span class="label">Token</span>
+                <code id="sessionTokenValue">未获取</code>
+              </div>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="section-head">
+              <h2>公众号</h2>
+              <div class="section-head-actions">
+                <button id="openCreateAccountButton" class="ghost-button compact-button" type="button">新建</button>
+                <button id="refreshPublicAccountsButton" class="ghost-button compact-button" type="button">刷新</button>
+              </div>
+            </div>
+
+            <div id="publicAccountsEmpty" class="empty-state">登录后读取公众号列表。</div>
+            <div id="publicAccountsList" class="account-list"></div>
+          </section>
+        </aside>
+
+        <section class="main-panel">
+          <section class="card">
+            <div class="section-head">
+              <div>
+                <h2 id="selectedAccountTitle">公众号详情</h2>
+                <p id="selectedAccountSubtitle" class="section-copy">尚未选择公众号</p>
+              </div>
+              <button id="reloadSelectedAccountButton" class="ghost-button compact-button" type="button">刷新当前公众号</button>
+            </div>
+
+            <div class="content-grid">
+              <section class="inner-card">
+                <div class="section-head">
+                  <div>
+                    <h3>规则配置</h3>
+                    <p class="section-copy">在这里配置认证、投稿和连接入口。</p>
+                  </div>
+                </div>
+
+                <form id="ruleInterfaceForm" class="stack-form">
+                  <div class="two-up">
+                    <label class="field">
+                      <span>规则标题</span>
+                      <input id="ruleTitleInput" type="text" placeholder="Resume dispatch admin interface" />
+                    </label>
+                    <label class="field">
+                      <span>规则状态</span>
+                      <label class="toggle-field">
+                        <input id="ruleActiveInput" type="checkbox" />
+                        <span>启用</span>
+                      </label>
+                    </label>
+                  </div>
+
+                  <label class="field">
+                    <span>规则描述</span>
+                    <textarea id="ruleDescriptionInput" rows="2" placeholder="Public account rule interface"></textarea>
+                  </label>
+
+                  <div class="slot-grid">
+                    <article class="slot-card">
+                      <div class="slot-head">
+                        <h4>认证入口</h4>
+                        <label class="toggle-field compact-toggle">
+                          <input id="certEnabledInput" type="checkbox" />
+                          <span>启用</span>
+                        </label>
+                      </div>
+                      <label class="field">
+                        <span>endpointKey</span>
+                        <input id="certEndpointInput" type="text" placeholder="resume_dispatch.certification" />
+                      </label>
+                      <label class="field">
+                        <span>config</span>
+                        <textarea id="certConfigInput" rows="4" placeholder='{"submitPath":"/internal/resume/certification"}'></textarea>
+                      </label>
+                    </article>
+
+                    <article class="slot-card">
+                      <div class="slot-head">
+                        <h4>投稿入口</h4>
+                        <label class="toggle-field compact-toggle">
+                          <input id="submissionEnabledInput" type="checkbox" />
+                          <span>启用</span>
+                        </label>
+                      </div>
+                      <label class="field">
+                        <span>endpointKey</span>
+                        <input id="submissionEndpointInput" type="text" placeholder="resume_dispatch.submission" />
+                      </label>
+                      <label class="field">
+                        <span>config</span>
+                        <textarea id="submissionConfigInput" rows="4" placeholder='{"submitPath":"/internal/resume/submission"}'></textarea>
+                      </label>
+                    </article>
+
+                    <article class="slot-card">
+                      <div class="slot-head">
+                        <h4>连接入口</h4>
+                        <label class="toggle-field compact-toggle">
+                          <input id="connectionEnabledInput" type="checkbox" />
+                          <span>启用</span>
+                        </label>
+                      </div>
+                      <label class="field">
+                        <span>endpointKey</span>
+                        <input id="connectionEndpointInput" type="text" placeholder="resume_dispatch.connection" />
+                      </label>
+                      <label class="field">
+                        <span>config</span>
+                        <textarea id="connectionConfigInput" rows="4" placeholder="{}"></textarea>
+                      </label>
+                    </article>
+
+                    <article class="slot-card">
+                      <div class="slot-head">
+                        <h4>扩展字段</h4>
+                      </div>
+                      <label class="field">
+                        <span>extensions</span>
+                        <textarea id="extensionsConfigInput" rows="8" placeholder='{"owner":"resume-dispatch-team"}'></textarea>
+                      </label>
+                    </article>
+                  </div>
+
+                  <div class="action-row">
+                    <button id="saveRuleInterfaceButton" type="submit">保存规则</button>
+                  </div>
+                </form>
+              </section>
+
+              <div class="side-stack">
+                <section class="inner-card">
+                  <div class="section-head">
+                    <div>
+                      <h3>申请类型</h3>
+                      <p class="section-copy">认证链路能不能跑通，关键看这里。</p>
+                    </div>
+                    <button id="resetApplicationTypeButton" class="ghost-button compact-button" type="button">新建</button>
+                  </div>
+
+                  <div id="applicationTypesEmpty" class="empty-state">请选择公众号后加载。</div>
+                  <div id="applicationTypesList" class="account-list"></div>
+
+                  <form id="applicationTypeForm" class="stack-form separated-form">
+                    <div class="two-up">
+                      <label class="field">
+                        <span>key</span>
+                        <input id="applicationTypeKeyInput" type="text" placeholder="credential" />
+                      </label>
+                      <label class="field">
+                        <span>名称</span>
+                        <input id="applicationTypeNameInput" type="text" placeholder="认证申请" />
+                      </label>
+                    </div>
+
+                    <div class="two-up">
+                      <label class="field">
+                        <span>按钮文案</span>
+                        <input id="applicationTypeButtonLabelInput" type="text" placeholder="申请认证" />
+                      </label>
+                      <label class="field">
+                        <span>状态</span>
+                        <label class="toggle-field">
+                          <input id="applicationTypeActiveInput" type="checkbox" />
+                          <span>启用</span>
+                        </label>
+                      </label>
+                    </div>
+
+                    <label class="field">
+                      <span>说明</span>
+                      <textarea id="applicationTypeDescriptionInput" rows="2" placeholder="用于认证申请、投稿或其它公众号动作"></textarea>
+                    </label>
+
+                    <label class="field">
+                      <span>能力类型</span>
+                      <label class="toggle-field">
+                        <input id="applicationTypeCertificationInput" type="checkbox" />
+                        <span>作为认证申请类型</span>
+                      </label>
+                    </label>
+
+                    <div class="action-row">
+                      <button id="saveApplicationTypeButton" type="submit">保存申请类型</button>
+                    </div>
+                  </form>
+                </section>
+
+                <section class="inner-card">
+                  <div class="section-head">
+                    <div>
+                      <h3>认证申请</h3>
+                      <p class="section-copy">这里处理个人提交的认证申请。</p>
+                    </div>
+                  </div>
+
+                  <div id="applicationsEmpty" class="empty-state">请选择公众号后加载。</div>
+                  <div id="applicationsList" class="application-list"></div>
+                </section>
+              </div>
+            </div>
+          </section>
+
+          <details class="log-card">
+            <summary>
+              <span>操作日志</span>
+              <button id="clearLogButton" class="ghost-button compact-button" type="button">清空</button>
+            </summary>
+            <pre id="eventLog" class="event-log">后台页面已加载。</pre>
+          </details>
+        </section>
+      </main>
+    </div>
+
+    <div class="modal" id="createAccountModal" hidden>
+      <div class="modal-backdrop" id="createAccountBackdrop"></div>
+      <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="createAccountTitle">
+        <div class="section-head modal-head">
+          <div>
+            <h2 id="createAccountTitle">新建公众号</h2>
+            <p class="section-copy">这里只保留必要字段，先把后台链路接通。</p>
+          </div>
+          <button id="closeCreateAccountButton" class="ghost-button compact-button" type="button">关闭</button>
+        </div>
+
+        <form id="createAccountForm" class="stack-form">
+          <label class="field">
+            <span>名称</span>
+            <input id="createNameInput" type="text" placeholder="简历派发" required />
+          </label>
+          <label class="field">
+            <span>slug</span>
+            <input id="createSlugInput" type="text" placeholder="resume-dispatch" required />
+          </label>
+          <label class="field">
+            <span>摘要</span>
+            <textarea id="createSummaryInput" rows="2" placeholder="一句话说明用途"></textarea>
+          </label>
+          <label class="field">
+            <span>说明</span>
+            <textarea id="createDescriptionInput" rows="3" placeholder="用于认证、简历维护、内容分发"></textarea>
+          </label>
+          <label class="field">
+            <span>头像 URL</span>
+            <input id="createAvatarInput" type="url" placeholder="https://..." />
+          </label>
+          <label class="field">
+            <span>封面 URL</span>
+            <input id="createCoverInput" type="url" placeholder="https://..." />
+          </label>
+          <div class="action-row modal-actions">
+            <button id="createAccountButton" class="secondary-button" type="button">取消</button>
+            <button id="submitCreateAccountButton" type="submit">创建公众号</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

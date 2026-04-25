@@ -1,0 +1,9 @@
+{
+  "name": "jiangleme-admin-console",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Static admin console for JiangLeMe backend_service.",
+  "scripts": {
+    "start": "node scripts/dev-server.js"
+  }
+}
