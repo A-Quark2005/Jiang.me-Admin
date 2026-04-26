@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>外部认证演示页</title>
+    <style>
+      :root {
+        --bg: #f5f5f5;
+        --panel: #ffffff;
+        --line: #d8d8d8;
+        --text: #111111;
+        --muted: #666666;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      .wrap {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+      }
+
+      .panel {
+        width: min(560px, 100%);
+        background: var(--panel);
+        border: 1px solid var(--line);
+        padding: 24px;
+      }
+
+      h1 {
+        margin: 0 0 8px;
+        font-size: 28px;
+      }
+
+      p {
+        margin: 0;
+        line-height: 1.6;
+        color: var(--muted);
+      }
+
+      form {
+        display: grid;
+        gap: 14px;
+        margin-top: 20px;
+      }
+
+      label {
+        display: grid;
+        gap: 8px;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--muted);
+      }
+
+      input {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid var(--line);
+        font: inherit;
+      }
+
+      input:focus {
+        outline: none;
+        border-color: #111111;
+      }
+
+      .meta {
+        display: grid;
+        gap: 6px;
+        margin-top: 20px;
+        padding: 14px;
+        border: 1px solid var(--line);
+        background: #fafafa;
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      .actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      button {
+        min-width: 124px;
+        padding: 10px 14px;
+        border: 1px solid #111111;
+        background: #111111;
+        color: #ffffff;
+        font: inherit;
+        cursor: pointer;
+      }
+
+      button.secondary {
+        background: #ffffff;
+        color: #111111;
+        border-color: var(--line);
+      }
+
+      .hint {
+        margin-top: 14px;
+        font-size: 13px;
+      }
+
+      @media (max-width: 640px) {
+        .actions {
+          flex-direction: column;
+        }
+
+        button {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <section class="panel">
+        <h1>外部身份认证</h1>
+        <p>这是公众号接入外部身份系统后的示意页面。用户在这里输入账号和密码，认证完成后回跳到 APP。</p>
+
+        <form id="certificationForm">
+          <label>
+            <span>账号</span>
+            <input id="usernameInput" type="text" placeholder="请输入账号" autocomplete="username" />
+          </label>
+
+          <label>
+            <span>密码</span>
+            <input id="passwordInput" type="password" placeholder="请输入密码" autocomplete="current-password" />
+          </label>
+
+          <div class="actions">
+            <button type="submit">认证成功</button>
+            <button id="failButton" class="secondary" type="button">模拟失败</button>
+          </div>
+        </form>
+
+        <div class="meta">
+          <div>公众号：<strong id="publicAccountValue">-</strong></div>
+          <div>用户：<strong id="userValue">-</strong></div>
+        </div>
+
+        <p class="hint">演示规则：账号和密码都非空时视为成功；点击“模拟失败”会回调失败结果。</p>
+      </section>
+    </div>
+
+    <script type="module">
+      const params = new URLSearchParams(window.location.search);
+      const callbackUrl = params.get('callbackUrl') || '';
+      const publicAccountId = params.get('publicAccountId') || '';
+      const userId = params.get('userId') || '';
+
+      document.querySelector('#publicAccountValue').textContent = publicAccountId || '-';
+      document.querySelector('#userValue').textContent = userId || '-';
+
+      function buildRedirectUrl(result, username) {
+        if (!callbackUrl) {
+          throw new Error('缺少 callbackUrl');
+        }
+        const target = new URL(callbackUrl);
+        target.searchParams.set('result', result);
+        if (username) {
+          target.searchParams.set('externalUserRef', username);
+          target.searchParams.set('externalDisplayName', username);
+        }
+        return target.toString();
+      }
+
+      function redirect(result, username) {
+        window.location.replace(buildRedirectUrl(result, username));
+      }
+
+      document.querySelector('#certificationForm').addEventListener('submit', (event) => {
+        event.preventDefault();
+        const username = document.querySelector('#usernameInput').value.trim();
+        const password = document.querySelector('#passwordInput').value.trim();
+        if (!username || !password) {
+          window.alert('请输入账号和密码。');
+          return;
+        }
+        redirect('verified', username);
+      });
+
+      document.querySelector('#failButton').addEventListener('click', () => {
+        const username = document.querySelector('#usernameInput').value.trim();
+        redirect('failed', username);
+      });
+    </script>
+  </body>
+</html>

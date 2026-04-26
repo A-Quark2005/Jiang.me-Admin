@@ -67,7 +67,15 @@ const elements = {
   ruleDescriptionInput: document.querySelector('#ruleDescriptionInput'),
   ruleActiveInput: document.querySelector('#ruleActiveInput'),
   certEnabledInput: document.querySelector('#certEnabledInput'),
+  certModeInput: document.querySelector('#certModeInput'),
   certEndpointInput: document.querySelector('#certEndpointInput'),
+  certStartUrlTemplateInput: document.querySelector('#certStartUrlTemplateInput'),
+  certTitleInput: document.querySelector('#certTitleInput'),
+  certDescriptionInput: document.querySelector('#certDescriptionInput'),
+  certSuccessTitleInput: document.querySelector('#certSuccessTitleInput'),
+  certSuccessDescriptionInput: document.querySelector('#certSuccessDescriptionInput'),
+  certFailureTitleInput: document.querySelector('#certFailureTitleInput'),
+  certFailureDescriptionInput: document.querySelector('#certFailureDescriptionInput'),
   certConfigInput: document.querySelector('#certConfigInput'),
   submissionEnabledInput: document.querySelector('#submissionEnabledInput'),
   submissionEndpointInput: document.querySelector('#submissionEndpointInput'),
@@ -81,6 +89,7 @@ const elements = {
   applicationsEmpty: document.querySelector('#applicationsEmpty'),
   eventLog: document.querySelector('#eventLog'),
   clearLogButton: document.querySelector('#clearLogButton'),
+  saveRuleInterfaceButton: document.querySelector('#saveRuleInterfaceButton'),
 };
 
 function normalizeBaseUrl(value) {
@@ -156,6 +165,53 @@ function escapeHtml(value) {
 
 function prettifyJson(value) {
   return JSON.stringify(value ?? {}, null, 2);
+}
+
+function certificationConfigFromFields() {
+  const advancedConfig = parseJsonField(
+    elements.certConfigInput.value,
+    '认证 advanced config',
+  );
+  const config = {
+    ...advancedConfig,
+    mode: elements.certModeInput.value.trim(),
+    startUrlTemplate: elements.certStartUrlTemplateInput.value.trim(),
+    title: elements.certTitleInput.value.trim(),
+    description: elements.certDescriptionInput.value.trim(),
+    successTitle: elements.certSuccessTitleInput.value.trim(),
+    successDescription: elements.certSuccessDescriptionInput.value.trim(),
+    failureTitle: elements.certFailureTitleInput.value.trim(),
+    failureDescription: elements.certFailureDescriptionInput.value.trim(),
+  };
+  Object.keys(config).forEach((key) => {
+    if (config[key] === '') {
+      delete config[key];
+    }
+  });
+  return config;
+}
+
+function applyCertificationConfig(config) {
+  const nextConfig = config || {};
+  elements.certModeInput.value = `${nextConfig.mode || ''}`;
+  elements.certStartUrlTemplateInput.value = `${nextConfig.startUrlTemplate || ''}`;
+  elements.certTitleInput.value = `${nextConfig.title || ''}`;
+  elements.certDescriptionInput.value = `${nextConfig.description || ''}`;
+  elements.certSuccessTitleInput.value = `${nextConfig.successTitle || ''}`;
+  elements.certSuccessDescriptionInput.value = `${nextConfig.successDescription || ''}`;
+  elements.certFailureTitleInput.value = `${nextConfig.failureTitle || ''}`;
+  elements.certFailureDescriptionInput.value = `${nextConfig.failureDescription || ''}`;
+
+  const advancedConfig = { ...nextConfig };
+  delete advancedConfig.mode;
+  delete advancedConfig.startUrlTemplate;
+  delete advancedConfig.title;
+  delete advancedConfig.description;
+  delete advancedConfig.successTitle;
+  delete advancedConfig.successDescription;
+  delete advancedConfig.failureTitle;
+  delete advancedConfig.failureDescription;
+  elements.certConfigInput.value = prettifyJson(advancedConfig);
 }
 
 function parseJsonField(value, fieldName) {
@@ -309,7 +365,7 @@ function renderRuleInterface() {
   elements.ruleActiveInput.checked = rule?.isActive === true;
   elements.certEnabledInput.checked = certification.enabled === true;
   elements.certEndpointInput.value = certification.endpointKey || '';
-  elements.certConfigInput.value = prettifyJson(certification.config || {});
+  applyCertificationConfig(certification.config || {});
   elements.submissionEnabledInput.checked = submission.enabled === true;
   elements.submissionEndpointInput.value = submission.endpointKey || '';
   elements.submissionConfigInput.value = prettifyJson(submission.config || {});
@@ -554,7 +610,7 @@ async function saveRuleInterface() {
       certification: {
         enabled: elements.certEnabledInput.checked,
         endpointKey: elements.certEndpointInput.value.trim(),
-        config: parseJsonField(elements.certConfigInput.value, '认证 config'),
+        config: certificationConfigFromFields(),
       },
       submission: {
         enabled: elements.submissionEnabledInput.checked,

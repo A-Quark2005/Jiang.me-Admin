@@ -125,12 +125,49 @@
                         </label>
                       </div>
                       <label class="field">
+                        <span>mode</span>
+                        <select id="certModeInput">
+                          <option value="">未配置</option>
+                          <option value="external_web">外部网页认证</option>
+                        </select>
+                      </label>
+                      <label class="field">
                         <span>endpointKey</span>
                         <input id="certEndpointInput" type="text" placeholder="resume_dispatch.certification" />
                       </label>
                       <label class="field">
-                        <span>config</span>
-                        <textarea id="certConfigInput" rows="4" placeholder='{"submitPath":"/internal/resume/certification"}'></textarea>
+                        <span>startUrlTemplate</span>
+                        <textarea id="certStartUrlTemplateInput" rows="3" placeholder="https://admin.whkerdb.top/mock-certification.html?callbackUrl={{callbackUrl}}&state={{state}}&publicAccountId={{publicAccountId}}&userId={{userId}}"></textarea>
+                      </label>
+                      <label class="field">
+                        <span>title</span>
+                        <input id="certTitleInput" type="text" placeholder="外部认证" />
+                      </label>
+                      <label class="field">
+                        <span>description</span>
+                        <textarea id="certDescriptionInput" rows="2" placeholder="请在外部认证页面中输入账号和密码，完成身份验证。"></textarea>
+                      </label>
+                      <div class="two-up">
+                        <label class="field">
+                          <span>successTitle</span>
+                          <input id="certSuccessTitleInput" type="text" placeholder="认证成功" />
+                        </label>
+                        <label class="field">
+                          <span>failureTitle</span>
+                          <input id="certFailureTitleInput" type="text" placeholder="认证失败" />
+                        </label>
+                      </div>
+                      <label class="field">
+                        <span>successDescription</span>
+                        <textarea id="certSuccessDescriptionInput" rows="2" placeholder="认证已完成，请返回 APP 继续操作。"></textarea>
+                      </label>
+                      <label class="field">
+                        <span>failureDescription</span>
+                        <textarea id="certFailureDescriptionInput" rows="2" placeholder="认证未完成，请返回 APP 重新发起。"></textarea>
+                      </label>
+                      <label class="field">
+                        <span>advanced config</span>
+                        <textarea id="certConfigInput" rows="3" placeholder="{}"></textarea>
                       </label>
                     </article>
 
